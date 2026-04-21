@@ -19,7 +19,7 @@ import {
 import ChatBubble from '../components/ChatBubble';
 import ChatInput from '../components/ChatInput';
 import { getAssistantReply } from '../services/chatService';
-import colors from '../theme/colors';
+import { useAppTheme } from '../theme/AppThemeProvider';
 import { ChatAttachment, ChatMessage } from '../types/chat';
 
 function createMessage(
@@ -44,6 +44,8 @@ const starterMessages: ChatMessage[] = [
 ];
 
 export default function ChatScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [messages, setMessages] = useState<ChatMessage[]>(starterMessages);
   const [input, setInput] = useState('');
   const [selectedAttachment, setSelectedAttachment] = useState<ChatAttachment | null>(null);
@@ -150,60 +152,62 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: colors.background.app,
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  header: {
-    backgroundColor: colors.background.panel,
-    borderBottomColor: colors.border.subtle,
-    borderBottomWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  statusRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  onlineDot: {
-    backgroundColor: colors.brand.successBright,
-    borderRadius: 4,
-    height: 8,
-    marginRight: 6,
-    width: 8,
-  },
-  statusText: {
-    color: colors.text.status,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  title: {
-    color: colors.text.title,
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: colors.text.subtitle,
-    fontSize: 13,
-    marginTop: 4,
-  },
-  chatList: {
-    flex: 1,
-    paddingHorizontal: 10,
-  },
-  chatListContent: {
-    paddingBottom: 12,
-    paddingTop: 14,
-  },
-  inputContainer: {
-    backgroundColor: colors.background.panel,
-    borderTopColor: colors.border.subtle,
-    borderTopWidth: 1,
-    padding: 12,
-  },
-});
+function createStyles(colors: ReturnType<typeof useAppTheme>['colors']) {
+  return StyleSheet.create({
+    safeArea: {
+      backgroundColor: colors.background.app,
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+    },
+    header: {
+      backgroundColor: colors.background.panel,
+      borderBottomColor: colors.border.subtle,
+      borderBottomWidth: 1,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+    },
+    statusRow: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      marginBottom: 8,
+    },
+    onlineDot: {
+      backgroundColor: colors.brand.successBright,
+      borderRadius: 4,
+      height: 8,
+      marginRight: 6,
+      width: 8,
+    },
+    statusText: {
+      color: colors.text.status,
+      fontSize: 12,
+      fontWeight: '600',
+    },
+    title: {
+      color: colors.text.title,
+      fontSize: 22,
+      fontWeight: '700',
+    },
+    subtitle: {
+      color: colors.text.subtitle,
+      fontSize: 13,
+      marginTop: 4,
+    },
+    chatList: {
+      flex: 1,
+      paddingHorizontal: 10,
+    },
+    chatListContent: {
+      paddingBottom: 12,
+      paddingTop: 14,
+    },
+    inputContainer: {
+      backgroundColor: colors.background.panel,
+      borderTopColor: colors.border.subtle,
+      borderTopWidth: 1,
+      padding: 12,
+    },
+  });
+}
