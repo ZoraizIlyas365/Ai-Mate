@@ -8,6 +8,8 @@ import {
   View,
 } from 'react-native';
 import { ChatAttachment } from '../types/chat';
+import colors from '../theme/colors';
+import AttachmentIcon from '../../assets/svg-icons/attachment.svg';
 
 type ChatInputProps = {
   value: string;
@@ -45,7 +47,7 @@ export default function ChatInput({
         ) : null}
         <TextInput
           placeholder="Type your message..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.text.placeholder}
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
@@ -53,15 +55,23 @@ export default function ChatInput({
           textAlignVertical="top"
         />
       </View>
-      <Pressable onPress={onAttach} disabled={isSending} style={styles.attachButton}>
-        <Text style={styles.attachText}>Attach</Text>
+      <Pressable
+        onPress={onAttach}
+        disabled={isSending}
+        accessibilityLabel="Attach file"
+        style={styles.attachButton}>
+        <AttachmentIcon
+          width={20}
+          height={20}
+          color={selectedAttachment ? colors.brand.successSoft : colors.text.attachmentName}
+        />
       </Pressable>
       <Pressable
         onPress={onSend}
         disabled={disabled}
         style={[styles.sendButton, disabled && styles.sendButtonDisabled]}>
         {isSending ? (
-          <ActivityIndicator color="#FFFFFF" size="small" />
+          <ActivityIndicator color={colors.white} size="small" />
         ) : (
           <Text style={styles.sendText}>Send</Text>
         )}
@@ -73,8 +83,8 @@ export default function ChatInput({
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'flex-end',
-    backgroundColor: '#0F1A2F',
-    borderColor: '#23314A',
+    backgroundColor: colors.background.inputWrapper,
+    borderColor: colors.border.muted,
     borderRadius: 18,
     borderWidth: 1,
     flexDirection: 'row',
@@ -85,7 +95,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   input: {
-    color: '#FFFFFF',
+    color: colors.text.title,
     fontSize: 16,
     maxHeight: 120,
     minHeight: 42,
@@ -94,8 +104,8 @@ const styles = StyleSheet.create({
   },
   attachmentPreview: {
     alignItems: 'center',
-    backgroundColor: '#0A1324',
-    borderColor: '#23314A',
+    backgroundColor: colors.background.attachmentSurface,
+    borderColor: colors.border.muted,
     borderRadius: 10,
     borderWidth: 1,
     flexDirection: 'row',
@@ -105,33 +115,27 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   attachmentName: {
-    color: '#DCE6F7',
+    color: colors.text.attachmentName,
     flex: 1,
     fontSize: 12,
     marginRight: 8,
   },
   clearAttachment: {
-    color: '#8CB4FF',
+    color: colors.text.status,
     fontSize: 12,
     fontWeight: '600',
   },
   attachButton: {
     alignItems: 'center',
-    backgroundColor: '#1C2A45',
     borderRadius: 14,
     justifyContent: 'center',
     minHeight: 42,
-    minWidth: 72,
-    paddingHorizontal: 12,
-  },
-  attachText: {
-    color: '#DCE6F7',
-    fontSize: 13,
-    fontWeight: '600',
+    minWidth: 50,
+    paddingHorizontal: 10,
   },
   sendButton: {
     alignItems: 'center',
-    backgroundColor: '#0D9F45',
+    backgroundColor: colors.brand.success,
     borderRadius: 14,
     justifyContent: 'center',
     minHeight: 42,
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   sendText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 15,
     fontWeight: '600',
   },

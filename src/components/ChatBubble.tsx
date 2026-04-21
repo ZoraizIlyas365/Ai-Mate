@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import colors from '../theme/colors';
 import { ChatMessage } from '../types/chat';
 
 type ChatBubbleProps = {
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 10,
     paddingBottom: 8,
-    shadowColor: '#000000',
+    shadowColor: colors.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -77,11 +78,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   userBubble: {
-    backgroundColor: '#0D9F45',
+    backgroundColor: colors.brand.success,
     borderBottomRightRadius: 6,
   },
   assistantBubble: {
-    backgroundColor: '#1D2738',
+    backgroundColor: colors.background.assistantBubble,
     borderBottomLeftRadius: 6,
   },
   text: {
@@ -89,14 +90,14 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   userText: {
-    color: '#FFFFFF',
+    color: colors.text.user,
   },
   assistantText: {
-    color: '#F9FAFB',
+    color: colors.text.assistant,
   },
   attachmentPill: {
-    backgroundColor: '#0A1324',
-    borderColor: '#2C3A52',
+    backgroundColor: colors.background.attachmentSurface,
+    borderColor: colors.border.attachment,
     borderRadius: 10,
     borderWidth: 1,
     marginTop: 8,
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   attachmentText: {
-    color: '#C5D4EE',
+    color: colors.text.attachment,
     fontSize: 12,
     fontWeight: '500',
   },
@@ -116,8 +117,8 @@ const styles = StyleSheet.create({
   },
   avatar: {
     alignItems: 'center',
-    backgroundColor: '#0A1324',
-    borderColor: '#23314A',
+    backgroundColor: colors.background.attachmentSurface,
+    borderColor: colors.border.muted,
     borderRadius: 12,
     borderWidth: 1,
     height: 24,
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     width: 24,
   },
   avatarText: {
-    color: '#9CB4D8',
+    color: colors.text.assistantAvatar,
     fontSize: 9,
     fontWeight: '700',
   },
@@ -135,11 +136,11 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   userTimeText: {
-    color: '#DBFFE8',
+    color: colors.text.userTimestamp,
     textAlign: 'right',
   },
   assistantTimeText: {
-    color: '#A0AEC0',
+    color: colors.text.muted,
     textAlign: 'left',
   },
 });
