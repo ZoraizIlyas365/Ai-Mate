@@ -32,6 +32,7 @@ export default function ChatInput({
         value={value}
         onChangeText={onChangeText}
         multiline
+        textAlignVertical="top"
       />
       <Pressable
         onPress={onSend}
@@ -50,13 +51,13 @@ export default function ChatInput({
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'flex-end',
-    backgroundColor: '#111827',
-    borderColor: '#374151',
-    borderRadius: 16,
+    backgroundColor: '#0F1A2F',
+    borderColor: '#23314A',
+    borderRadius: 18,
     borderWidth: 1,
     flexDirection: 'row',
     gap: 8,
-    padding: 8,
+    padding: 10,
   },
   input: {
     color: '#FFFFFF',
@@ -69,8 +70,8 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     alignItems: 'center',
-    backgroundColor: '#0B8F3A',
-    borderRadius: 12,
+    backgroundColor: '#0D9F45',
+    borderRadius: 14,
     justifyContent: 'center',
     minHeight: 42,
     minWidth: 68,

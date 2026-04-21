@@ -79,7 +79,11 @@ export default function ChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>In-App AI Chat</Text>
+          <View style={styles.statusRow}>
+            <View style={styles.onlineDot} />
+            <Text style={styles.statusText}>AI assistant online</Text>
+          </View>
+          <Text style={styles.title}>Ai Mate</Text>
           <Text style={styles.subtitle}>Customer support and personal assistant</Text>
         </View>
 
@@ -106,37 +110,57 @@ export default function ChatScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#030712',
+    backgroundColor: '#050B1A',
     flex: 1,
   },
   container: {
     flex: 1,
   },
   header: {
-    borderBottomColor: '#1F2937',
+    backgroundColor: '#0B1529',
+    borderBottomColor: '#1E2A42',
     borderBottomWidth: 1,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
+  },
+  statusRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  onlineDot: {
+    backgroundColor: '#22C55E',
+    borderRadius: 4,
+    height: 8,
+    marginRight: 6,
+    width: 8,
+  },
+  statusText: {
+    color: '#8CB4FF',
+    fontSize: 12,
+    fontWeight: '600',
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
   },
   subtitle: {
-    color: '#9CA3AF',
+    color: '#9FB0CB',
     fontSize: 13,
-    marginTop: 2,
+    marginTop: 4,
   },
   chatList: {
     flex: 1,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
   },
   chatListContent: {
-    paddingVertical: 12,
+    paddingBottom: 12,
+    paddingTop: 14,
   },
   inputContainer: {
-    borderTopColor: '#1F2937',
+    backgroundColor: '#0B1529',
+    borderTopColor: '#1E2A42',
     borderTopWidth: 1,
     padding: 12,
   },
