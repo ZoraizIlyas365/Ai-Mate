@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -8,30 +9,44 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  DocumentPickerResponse,
+  errorCodes,
+  isErrorWithCode,
+  pick,
+  types,
+} from '@react-native-documents/picker';
 import ChatBubble from '../components/ChatBubble';
 import ChatInput from '../components/ChatInput';
 import { getAssistantReply } from '../services/chatService';
-import { ChatMessage } from '../types/chat';
+import colors from '../theme/colors';
+import { ChatAttachment, ChatMessage } from '../types/chat';
 
-function createMessage(role: ChatMessage['role'], text: string): ChatMessage {
+function createMessage(
+  role: ChatMessage['role'],
+  text: string,
+  attachment?: ChatAttachment,
+): ChatMessage {
   return {
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     role,
     text,
     createdAt: new Date().toISOString(),
+    attachment,
   };
 }
 
 const starterMessages: ChatMessage[] = [
   createMessage(
     'assistant',
-    'Hi! I am your in-app assistant. Ask for customer support, personal help, or app guidance.',
+    'Hi! I am your in-app assistant. Ask for personal help, or app guidance.',
   ),
 ];
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>(starterMessages);
   const [input, setInput] = useState('');
+  const [selectedAttachment, setSelectedAttachment] = useState<ChatAttachment | null>(null);
   const [isSending, setIsSending] = useState(false);
 
   const sortedMessages = useMemo(
@@ -42,17 +57,40 @@ export default function ChatScreen() {
     [messages],
   );
 
+  const handleAttach = async () => {
+    try {
+      const result: DocumentPickerResponse[] = await pick({
+        allowMultiSelection: false,
+        type: [types.images, types.pdf, types.doc, types.docx, types.plainText],
+      });
+      const file = result[0];
+      setSelectedAttachment({
+        name: file.name ?? 'Attachment',
+        uri: file.uri,
+        mimeType: file.type,
+        size: file.size,
+      });
+    } catch (error) {
+      if (isErrorWithCode(error) && error.code === errorCodes.OPERATION_CANCELED) {
+        return;
+      }
+      Alert.alert('Attachment error', 'Could not select file. Please try again.');
+    }
+  };
+
   const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isSending) {
+    if ((trimmed.length === 0 && !selectedAttachment) || isSending) {
       return;
     }
 
-    const userMessage = createMessage('user', trimmed);
+    const userMessageText = trimmed || 'Shared an attachment';
+    const userMessage = createMessage('user', userMessageText, selectedAttachment ?? undefined);
     const nextConversation = [...messages, userMessage];
 
     setMessages(nextConversation);
     setInput('');
+    setSelectedAttachment(null);
     setIsSending(true);
 
     try {
@@ -84,7 +122,7 @@ export default function ChatScreen() {
             <Text style={styles.statusText}>AI assistant online</Text>
           </View>
           <Text style={styles.title}>Ai Mate</Text>
-          <Text style={styles.subtitle}>Customer support and personal assistant</Text>
+          <Text style={styles.subtitle}>Personal assistant</Text>
         </View>
 
         <FlatList
@@ -100,6 +138,9 @@ export default function ChatScreen() {
             value={input}
             onChangeText={setInput}
             onSend={handleSend}
+            onAttach={handleAttach}
+            onClearAttachment={() => setSelectedAttachment(null)}
+            selectedAttachment={selectedAttachment}
             isSending={isSending}
           />
         </View>
@@ -110,15 +151,15 @@ export default function ChatScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#050B1A',
+    backgroundColor: colors.background.app,
     flex: 1,
   },
   container: {
     flex: 1,
   },
   header: {
-    backgroundColor: '#0B1529',
-    borderBottomColor: '#1E2A42',
+    backgroundColor: colors.background.panel,
+    borderBottomColor: colors.border.subtle,
     borderBottomWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -129,24 +170,24 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   onlineDot: {
-    backgroundColor: '#22C55E',
+    backgroundColor: colors.brand.successBright,
     borderRadius: 4,
     height: 8,
     marginRight: 6,
     width: 8,
   },
   statusText: {
-    color: '#8CB4FF',
+    color: colors.text.status,
     fontSize: 12,
     fontWeight: '600',
   },
   title: {
-    color: '#FFFFFF',
+    color: colors.text.title,
     fontSize: 22,
     fontWeight: '700',
   },
   subtitle: {
-    color: '#9FB0CB',
+    color: colors.text.subtitle,
     fontSize: 13,
     marginTop: 4,
   },
@@ -159,8 +200,8 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   inputContainer: {
-    backgroundColor: '#0B1529',
-    borderTopColor: '#1E2A42',
+    backgroundColor: colors.background.panel,
+    borderTopColor: colors.border.subtle,
     borderTopWidth: 1,
     padding: 12,
   },

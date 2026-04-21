@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import colors from '../theme/colors';
 import { ChatMessage } from '../types/chat';
 
 type ChatBubbleProps = {
@@ -9,6 +10,10 @@ type ChatBubbleProps = {
 export default function ChatBubble({ message }: ChatBubbleProps) {
   const isUser = message.role === 'user';
   const rowStyle = isUser ? styles.userRow : styles.assistantRow;
+  const isImageAttachment =
+    !!message.attachment &&
+    (message.attachment.mimeType?.startsWith('image/') ||
+      /\.(png|jpe?g|gif|webp|bmp|heic|heif)$/i.test(message.attachment.name));
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
@@ -25,6 +30,18 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
         <Text style={[styles.text, isUser ? styles.userText : styles.assistantText]}>
           {message.text}
         </Text>
+        {message.attachment && isImageAttachment ? (
+          <Image
+            source={{ uri: message.attachment.uri }}
+            style={styles.imageAttachment}
+            resizeMode="cover"
+          />
+        ) : null}
+        {message.attachment && !isImageAttachment ? (
+          <View style={styles.attachmentPill}>
+            <Text style={styles.attachmentText}>Attachment: {message.attachment.name}</Text>
+          </View>
+        ) : null}
         <Text style={[styles.timeText, isUser ? styles.userTimeText : styles.assistantTimeText]}>
           {timestamp}
         </Text>
@@ -52,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 10,
     paddingBottom: 8,
-    shadowColor: '#000000',
+    shadowColor: colors.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -61,11 +78,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   userBubble: {
-    backgroundColor: '#0D9F45',
+    backgroundColor: colors.brand.success,
     borderBottomRightRadius: 6,
   },
   assistantBubble: {
-    backgroundColor: '#1D2738',
+    backgroundColor: colors.background.assistantBubble,
     borderBottomLeftRadius: 6,
   },
   text: {
@@ -73,15 +90,35 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   userText: {
-    color: '#FFFFFF',
+    color: colors.text.user,
   },
   assistantText: {
-    color: '#F9FAFB',
+    color: colors.text.assistant,
+  },
+  attachmentPill: {
+    backgroundColor: colors.background.attachmentSurface,
+    borderColor: colors.border.attachment,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  attachmentText: {
+    color: colors.text.attachment,
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  imageAttachment: {
+    borderRadius: 12,
+    height: 190,
+    marginTop: 8,
+    width: 220,
   },
   avatar: {
     alignItems: 'center',
-    backgroundColor: '#0A1324',
-    borderColor: '#23314A',
+    backgroundColor: colors.background.attachmentSurface,
+    borderColor: colors.border.muted,
     borderRadius: 12,
     borderWidth: 1,
     height: 24,
@@ -90,7 +127,7 @@ const styles = StyleSheet.create({
     width: 24,
   },
   avatarText: {
-    color: '#9CB4D8',
+    color: colors.text.assistantAvatar,
     fontSize: 9,
     fontWeight: '700',
   },
@@ -99,11 +136,11 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   userTimeText: {
-    color: '#DBFFE8',
+    color: colors.text.userTimestamp,
     textAlign: 'right',
   },
   assistantTimeText: {
-    color: '#A0AEC0',
+    color: colors.text.muted,
     textAlign: 'left',
   },
 });
