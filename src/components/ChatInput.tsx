@@ -7,11 +7,15 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { ChatAttachment } from '../types/chat';
 
 type ChatInputProps = {
   value: string;
   onChangeText: (text: string) => void;
   onSend: () => void;
+  onAttach: () => void;
+  onClearAttachment: () => void;
+  selectedAttachment: ChatAttachment | null;
   isSending: boolean;
 };
 
@@ -19,21 +23,39 @@ export default function ChatInput({
   value,
   onChangeText,
   onSend,
+  onAttach,
+  onClearAttachment,
+  selectedAttachment,
   isSending,
 }: ChatInputProps) {
-  const disabled = isSending || value.trim().length === 0;
+  const disabled = isSending || (value.trim().length === 0 && !selectedAttachment);
 
   return (
     <View style={styles.wrapper}>
-      <TextInput
-        placeholder="Type your message..."
-        placeholderTextColor="#9CA3AF"
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        multiline
-        textAlignVertical="top"
-      />
+      <View style={styles.inputColumn}>
+        {selectedAttachment ? (
+          <View style={styles.attachmentPreview}>
+            <Text style={styles.attachmentName} numberOfLines={1}>
+              {selectedAttachment.name}
+            </Text>
+            <Pressable onPress={onClearAttachment} hitSlop={8}>
+              <Text style={styles.clearAttachment}>Remove</Text>
+            </Pressable>
+          </View>
+        ) : null}
+        <TextInput
+          placeholder="Type your message..."
+          placeholderTextColor="#9CA3AF"
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          multiline
+          textAlignVertical="top"
+        />
+      </View>
+      <Pressable onPress={onAttach} disabled={isSending} style={styles.attachButton}>
+        <Text style={styles.attachText}>Attach</Text>
+      </Pressable>
       <Pressable
         onPress={onSend}
         disabled={disabled}
@@ -59,14 +81,53 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 10,
   },
+  inputColumn: {
+    flex: 1,
+  },
   input: {
     color: '#FFFFFF',
-    flex: 1,
     fontSize: 16,
     maxHeight: 120,
     minHeight: 42,
     paddingHorizontal: 10,
     paddingVertical: 8,
+  },
+  attachmentPreview: {
+    alignItems: 'center',
+    backgroundColor: '#0A1324',
+    borderColor: '#23314A',
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  attachmentName: {
+    color: '#DCE6F7',
+    flex: 1,
+    fontSize: 12,
+    marginRight: 8,
+  },
+  clearAttachment: {
+    color: '#8CB4FF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  attachButton: {
+    alignItems: 'center',
+    backgroundColor: '#1C2A45',
+    borderRadius: 14,
+    justifyContent: 'center',
+    minHeight: 42,
+    minWidth: 72,
+    paddingHorizontal: 12,
+  },
+  attachText: {
+    color: '#DCE6F7',
+    fontSize: 13,
+    fontWeight: '600',
   },
   sendButton: {
     alignItems: 'center',

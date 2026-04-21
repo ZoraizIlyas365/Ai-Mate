@@ -11,7 +11,9 @@ const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
 function toGroqMessages(messages: ChatMessage[]): GroqMessage[] {
   return messages.map(message => ({
     role: message.role,
-    content: message.text,
+    content: message.attachment
+      ? `${message.text}\n\n[Attachment: ${message.attachment.name}${message.attachment.mimeType ? ` (${message.attachment.mimeType})` : ''}]`
+      : message.text,
   }));
 }
 
@@ -33,9 +35,11 @@ export async function getAssistantReply(
   conversation: ChatMessage[],
 ): Promise<string> {
   if (!env.GROQ_API_KEY) {
-    const latestUserMessage =
-      conversation.filter(message => message.role === 'user').at(-1)?.text ?? '';
-    return mockReply(latestUserMessage);
+    const latestUserMessage = conversation.filter(message => message.role === 'user').at(-1);
+    const previewText = latestUserMessage?.attachment
+      ? `${latestUserMessage.text} (with attachment: ${latestUserMessage.attachment.name})`
+      : latestUserMessage?.text ?? '';
+    return mockReply(previewText);
   }
 
   const response = await fetch(GROQ_ENDPOINT, {
@@ -51,7 +55,7 @@ export async function getAssistantReply(
         {
           role: 'system',
           content:
-            'You are a fast, helpful in-app assistant for customer support and personal productivity.',
+            'You are a fast, helpful in-app assistant for personal productivity.',
         },
         ...toGroqMessages(conversation),
       ],

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { ChatMessage } from '../types/chat';
 
 type ChatBubbleProps = {
@@ -9,6 +9,10 @@ type ChatBubbleProps = {
 export default function ChatBubble({ message }: ChatBubbleProps) {
   const isUser = message.role === 'user';
   const rowStyle = isUser ? styles.userRow : styles.assistantRow;
+  const isImageAttachment =
+    !!message.attachment &&
+    (message.attachment.mimeType?.startsWith('image/') ||
+      /\.(png|jpe?g|gif|webp|bmp|heic|heif)$/i.test(message.attachment.name));
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
@@ -25,6 +29,18 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
         <Text style={[styles.text, isUser ? styles.userText : styles.assistantText]}>
           {message.text}
         </Text>
+        {message.attachment && isImageAttachment ? (
+          <Image
+            source={{ uri: message.attachment.uri }}
+            style={styles.imageAttachment}
+            resizeMode="cover"
+          />
+        ) : null}
+        {message.attachment && !isImageAttachment ? (
+          <View style={styles.attachmentPill}>
+            <Text style={styles.attachmentText}>Attachment: {message.attachment.name}</Text>
+          </View>
+        ) : null}
         <Text style={[styles.timeText, isUser ? styles.userTimeText : styles.assistantTimeText]}>
           {timestamp}
         </Text>
@@ -77,6 +93,26 @@ const styles = StyleSheet.create({
   },
   assistantText: {
     color: '#F9FAFB',
+  },
+  attachmentPill: {
+    backgroundColor: '#0A1324',
+    borderColor: '#2C3A52',
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  attachmentText: {
+    color: '#C5D4EE',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  imageAttachment: {
+    borderRadius: 12,
+    height: 190,
+    marginTop: 8,
+    width: 220,
   },
   avatar: {
     alignItems: 'center',
