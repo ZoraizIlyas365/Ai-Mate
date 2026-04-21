@@ -114,7 +114,8 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.select({ ios: 'padding', android: 'height' })}
+        keyboardVerticalOffset={0}
         style={styles.container}>
         <View style={styles.header}>
           <View style={styles.statusRow}>
