@@ -13,6 +13,7 @@ import {
   DocumentPickerResponse,
   errorCodes,
   isErrorWithCode,
+  keepLocalCopy,
   pick,
   types,
 } from '@react-native-documents/picker';
@@ -66,9 +67,25 @@ export default function ChatScreen() {
         type: [types.images, types.pdf, types.doc, types.docx, types.plainText],
       });
       const file = result[0];
+      let resolvedUri = file.uri;
+
+      const localCopy = await keepLocalCopy({
+        destination: 'cachesDirectory',
+        files: [
+          {
+            uri: file.uri,
+            fileName: file.name ?? `attachment-${Date.now()}`,
+          },
+        ],
+      });
+      const copied = localCopy[0];
+      if (copied.status === 'success') {
+        resolvedUri = copied.localUri;
+      }
+
       setSelectedAttachment({
         name: file.name ?? 'Attachment',
-        uri: file.uri,
+        uri: resolvedUri,
         mimeType: file.type,
         size: file.size,
       });

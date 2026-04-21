@@ -1,20 +1,72 @@
 import env from '../config/env';
 import { ChatMessage } from '../types/chat';
+import RNFS from 'react-native-fs';
 
+type GroqContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } };
 type GroqMessage = {
   role: 'system' | 'user' | 'assistant';
-  content: string;
+  content: string | GroqContentPart[];
 };
 
 const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
 
-function toGroqMessages(messages: ChatMessage[]): GroqMessage[] {
-  return messages.map(message => ({
-    role: message.role,
-    content: message.attachment
-      ? `${message.text}\n\n[Attachment: ${message.attachment.name}${message.attachment.mimeType ? ` (${message.attachment.mimeType})` : ''}]`
-      : message.text,
-  }));
+function isImageAttachment(message: ChatMessage): boolean {
+  if (!message.attachment) {
+    return false;
+  }
+  return (
+    message.attachment.mimeType?.startsWith('image/') === true ||
+    /\.(png|jpe?g|gif|webp|bmp|heic|heif)$/i.test(message.attachment.name)
+  );
+}
+
+async function makeImageDataUrl(uri: string, mimeType?: string | null): Promise<string> {
+  const localPath = uri.replace('file://', '');
+  const base64 = await RNFS.readFile(localPath, 'base64');
+  return `data:${mimeType ?? 'image/jpeg'};base64,${base64}`;
+}
+
+async function toGroqMessages(messages: ChatMessage[]): Promise<GroqMessage[]> {
+  const mapped = await Promise.all(
+    messages.map(async message => {
+      if (!message.attachment) {
+        return {
+          role: message.role,
+          content: message.text,
+        } satisfies GroqMessage;
+      }
+
+      if (message.role === 'user' && isImageAttachment(message)) {
+        try {
+          const dataUrl = await makeImageDataUrl(
+            message.attachment.uri,
+            message.attachment.mimeType,
+          );
+          return {
+            role: message.role,
+            content: [
+              { type: 'text', text: message.text || 'Analyze this image.' },
+              { type: 'image_url', image_url: { url: dataUrl } },
+            ],
+          } satisfies GroqMessage;
+        } catch {
+          return {
+            role: message.role,
+            content: `${message.text}\n\n[Image attached: ${message.attachment.name}, but image bytes could not be read]`,
+          } satisfies GroqMessage;
+        }
+      }
+
+      return {
+        role: message.role,
+        content: `${message.text}\n\n[Attachment: ${message.attachment.name}${message.attachment.mimeType ? ` (${message.attachment.mimeType})` : ''}]`,
+      } satisfies GroqMessage;
+    }),
+  );
+
+  return mapped;
 }
 
 async function mockReply(input: string): Promise<string> {
@@ -41,6 +93,7 @@ export async function getAssistantReply(
       : latestUserMessage?.text ?? '';
     return mockReply(previewText);
   }
+  const groqMessages = await toGroqMessages(conversation);
 
   const response = await fetch(GROQ_ENDPOINT, {
     method: 'POST',
@@ -55,9 +108,9 @@ export async function getAssistantReply(
         {
           role: 'system',
           content:
-            'You are a fast, helpful in-app assistant for personal productivity.',
+            'You are a fast, helpful in-app assistant for personal productivity. If an image is provided, analyze visible details and answer based on the image.',
         },
-        ...toGroqMessages(conversation),
+        ...groqMessages,
       ],
     }),
   });
