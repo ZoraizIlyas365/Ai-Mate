@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import colors from '../theme/colors';
+import { useAppTheme } from '../theme/AppThemeProvider';
 import { ChatMessage } from '../types/chat';
 
 type ChatBubbleProps = {
@@ -8,6 +8,8 @@ type ChatBubbleProps = {
 };
 
 export default function ChatBubble({ message }: ChatBubbleProps) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const isUser = message.role === 'user';
   const rowStyle = isUser ? styles.userRow : styles.assistantRow;
   const isImageAttachment =
@@ -50,97 +52,99 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-    marginVertical: 4,
-    width: '100%',
-  },
-  userRow: {
-    justifyContent: 'flex-end',
-  },
-  assistantRow: {
-    justifyContent: 'flex-start',
-  },
-  bubble: {
-    borderRadius: 18,
-    maxWidth: '82%',
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 8,
-    shadowColor: colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
+function createStyles(colors: ReturnType<typeof useAppTheme>['colors']) {
+  return StyleSheet.create({
+    row: {
+      alignItems: 'flex-end',
+      flexDirection: 'row',
+      marginVertical: 4,
+      width: '100%',
     },
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-  },
-  userBubble: {
-    backgroundColor: colors.brand.success,
-    borderBottomRightRadius: 6,
-  },
-  assistantBubble: {
-    backgroundColor: colors.background.assistantBubble,
-    borderBottomLeftRadius: 6,
-  },
-  text: {
-    fontSize: 17,
-    lineHeight: 24,
-  },
-  userText: {
-    color: colors.text.user,
-  },
-  assistantText: {
-    color: colors.text.assistant,
-  },
-  attachmentPill: {
-    backgroundColor: colors.background.attachmentSurface,
-    borderColor: colors.border.attachment,
-    borderRadius: 10,
-    borderWidth: 1,
-    marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  attachmentText: {
-    color: colors.text.attachment,
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  imageAttachment: {
-    borderRadius: 12,
-    height: 190,
-    marginTop: 8,
-    width: 220,
-  },
-  avatar: {
-    alignItems: 'center',
-    backgroundColor: colors.background.attachmentSurface,
-    borderColor: colors.border.muted,
-    borderRadius: 12,
-    borderWidth: 1,
-    height: 24,
-    justifyContent: 'center',
-    marginRight: 8,
-    width: 24,
-  },
-  avatarText: {
-    color: colors.text.assistantAvatar,
-    fontSize: 9,
-    fontWeight: '700',
-  },
-  timeText: {
-    fontSize: 11,
-    marginTop: 6,
-  },
-  userTimeText: {
-    color: colors.text.userTimestamp,
-    textAlign: 'right',
-  },
-  assistantTimeText: {
-    color: colors.text.muted,
-    textAlign: 'left',
-  },
-});
+    userRow: {
+      justifyContent: 'flex-end',
+    },
+    assistantRow: {
+      justifyContent: 'flex-start',
+    },
+    bubble: {
+      borderRadius: 18,
+      maxWidth: '82%',
+      paddingHorizontal: 14,
+      paddingTop: 10,
+      paddingBottom: 8,
+      shadowColor: colors.black,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 4,
+    },
+    userBubble: {
+      backgroundColor: colors.brand.success,
+      borderBottomRightRadius: 6,
+    },
+    assistantBubble: {
+      backgroundColor: colors.background.assistantBubble,
+      borderBottomLeftRadius: 6,
+    },
+    text: {
+      fontSize: 17,
+      lineHeight: 24,
+    },
+    userText: {
+      color: colors.text.user,
+    },
+    assistantText: {
+      color: colors.text.assistant,
+    },
+    attachmentPill: {
+      backgroundColor: colors.background.attachmentSurface,
+      borderColor: colors.border.attachment,
+      borderRadius: 10,
+      borderWidth: 1,
+      marginTop: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    attachmentText: {
+      color: colors.text.attachment,
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    imageAttachment: {
+      borderRadius: 12,
+      height: 190,
+      marginTop: 8,
+      width: 220,
+    },
+    avatar: {
+      alignItems: 'center',
+      backgroundColor: colors.background.attachmentSurface,
+      borderColor: colors.border.muted,
+      borderRadius: 12,
+      borderWidth: 1,
+      height: 24,
+      justifyContent: 'center',
+      marginRight: 8,
+      width: 24,
+    },
+    avatarText: {
+      color: colors.text.assistantAvatar,
+      fontSize: 9,
+      fontWeight: '700',
+    },
+    timeText: {
+      fontSize: 11,
+      marginTop: 6,
+    },
+    userTimeText: {
+      color: colors.text.userTimestamp,
+      textAlign: 'right',
+    },
+    assistantTimeText: {
+      color: colors.text.muted,
+      textAlign: 'left',
+    },
+  });
+}
